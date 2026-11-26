@@ -1,0 +1,3 @@
+﻿version,evaluatedCompanies,keyFactMatchRatePct,numericalMatchRatePct,averageWordCount,wordLimitCompliancePct,estimatedFactualAccuracyPct,estimatedIncorrectClaimRatePct,estimatedHallucinationRatePct,estimatedMaterialFactCoveragePct,estimatedCriticalErrorRatePct,averageUsefulness,averageReadability,averageConciseness,averageLatencySeconds,medianLatencySeconds,averageInputTokens,averageOutputTokens
+V1,15,44.23,31.25,237.27,6.67,87.5,2.42,10.08,59.42,26.67,3.73,4.53,3.6,3.59,2.88,2311.13,434.07
+V2,15,67.95,53.12,333.73,0.0,82.61,6.16,11.23,60.39,66.67,3.33,3.93,2.93,3.62,3.72,2126.6,557.0

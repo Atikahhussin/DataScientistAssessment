@@ -5,7 +5,11 @@ description = "Build, experiment with and evaluate a system that summarises comp
 requires-python = ">=3.14,<3.15"
 dependencies = [
   "fastapi",
+  "matplotlib>=3.11.2",
+  "openai>=3.58.0",
+  "pandas>=3.1.1",
   "pydantic",
+  "python-dotenv>=1.2.4",
   "uvicorn",
 ]
 

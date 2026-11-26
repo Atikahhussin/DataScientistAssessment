@@ -1,0 +1,4 @@
+﻿version,versionName,generationModel,evaluatedCompanies,applicableChecks,matchedChecks,keyFactMatchRatePct,applicableNumericalChecks,matchedNumericalChecks,numericalMatchRatePct,averageWordCount,wordLimitCompliancePct,averageLatencySeconds,medianLatencySeconds,averageInputTokens,averageOutputTokens,totalApiRequests,averageApiRequests
+V1,Baseline,nvidia/nemotron-3.5-lightning:free,10,103,63,61.17,63,31,49.21,239.2,10.0,5.16,3.8,2644.3,442.9,10,1.0
+V2,Improved,nvidia/nemotron-3.5-lightning:free,10,103,77,74.76,63,40,63.49,326.8,0.0,9.16,4.39,2276.5,544.8,10,1.0
+V3,Concise,nvidia/nemotron-3.5-lightning:free,10,103,66,64.08,63,27,42.86,133.4,90.0,4.91,2.08,1253.3,264.8,11,1.1

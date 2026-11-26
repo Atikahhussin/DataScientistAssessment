@@ -170,3 +170,151 @@ Everything in this repo is synthetic. We made it up for this assessment.
 
 Assessment version: **2026.11** (`ds-v2026.11`). You can see what changed between versions in
 [`CHANGELOG.md`](CHANGELOG.md).
+
+---
+
+# Solution Implementation
+
+## Project Overview
+
+This project presents an experimental large language model (LLM) based approach to company summarisation for preliminary supplier and project partner screening. The generation prompts originally target credit analysts; adapting them more directly to business due diligence remains a future improvement.
+
+| Version | Approach |
+|---|---|
+| V1 — Baseline | Direct summarisation of the original company record. |
+| V2 — Improved | Deterministic financial preprocessing and detailed prompts. |
+| V3 — Concise | Compact preprocessing, information prioritisation and one conditional length revision. |
+
+Each approach was applied to all 50 synthetic company records, resulting in 150 saved summaries. The 100–150-word target is a project design choice, not an assessment requirement.
+
+## Technology Stack
+
+Python, OpenRouter, `nvidia/nemotron-3.5-lightning:free`, OpenAI Python SDK, python-dotenv, Pandas, Matplotlib, FastAPI, uv, JSONL and CSV.
+
+## Installation
+
+From the repository root:
+
+```bash
+uv sync --locked
+```
+
+To generate new summaries, create a local `.env` file using `.env.example` as a reference:
+
+```env
+OPENROUTER_API_KEY=your_api_key_here
+MODEL_ID=nvidia/nemotron-3.5-lightning:free
+```
+
+The `.env` file and API credentials must not be committed to the repository. The saved summaries, viewer and final rule-based evaluation do not require an API key.
+
+## Running the Viewer
+
+Use the original Docker-based workflow:
+
+```bash
+just up
+```
+
+Open http://localhost:8000. Alternatively, run the FastAPI application directly from the repository root:
+
+```bash
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8001
+```
+
+Open http://localhost:8001. Select a company and two summary versions to compare. Keep the terminal running; press Ctrl+C to stop the direct server. For Docker, use `just down`.
+
+## Generating Summaries
+
+The generated outputs are included in `summaries/`. To generate missing summaries:
+
+```bash
+uv run python src/generate_baseline.py --split all
+uv run python src/generate_improved.py --split all
+uv run python src/generate_v3.py --split all
+```
+
+The generation scripts support resumption from previously saved outputs. These commands do not overwrite completed summaries. Model availability and provider rate limits may change. Preserve existing outputs and logs when conducting new experiments.
+
+## Reproducing the Evaluation
+
+The following commands use saved summaries and generation logs without additional LLM requests:
+
+```bash
+uv run python src/profile_dataset.py
+uv run python src/verify_final_samples.py
+uv run python src/evaluate_rules_final.py
+uv run python src/evaluate_final.py
+uv run python src/visualise_final.py
+```
+
+The initial development and evaluation splits are recorded in `evaluation/sample_split.json`. The final held-out sample is recorded in `evaluation/final_evaluation_split.json`. The final comparison uses the same 10 companies for all three versions.
+
+## Repository Structure
+
+```text
+.
+├── app/                         # Original viewer
+├── data/companies.jsonl         # Source records
+├── src/                         # Generation, preprocessing and evaluation
+├── summaries/
+│   ├── v1_baseline.jsonl
+│   ├── v2_improved.jsonl
+│   └── v3_concise.jsonl
+├── evaluation/                  # Saved metrics, splits, logs and figures
+├── CASE_STUDY.md                # Methodology and findings
+├── README.md
+├── .env.example                 # Configuration placeholders only
+├── pyproject.toml
+└── uv.lock
+```
+
+## Results
+
+### Final held-out evaluation (10 companies)
+
+| Metric | V1 | V2 | V3 |
+|---|---:|---:|---:|
+| Key fact matching | 61.17% | 74.76% | 64.08% |
+| Numerical matching | 49.21% | 63.49% | 42.86% |
+| Average word count | 239.20 | 326.80 | 133.40 |
+| Word limit compliance | 10% | 0% | 90% |
+| Average latency | 5.16 s | 9.16 s | 4.91 s |
+
+![Information coverage and summary length](evaluation/final_figures/09_coverage_length_tradeoff.png)
+
+### Full dataset (50 companies per version)
+
+| Metric | V1 | V2 | V3 |
+|---|---:|---:|---:|
+| Completed summaries | 50 | 50 | 50 |
+| Average word count | 228.34 | 325.08 | 141.66 |
+| Word limit compliance | 8% | 0% | 70% |
+| Average latency | 3.68 s | 5.12 s | 5.36 s |
+| Recorded API requests | 50 | 50 | 69 |
+
+V2 achieved the highest matching rates for selected information. V3 was identified as the preferred candidate for further development when concise preliminary review is the priority, although it retained fewer of the selected numerical facts. Its revision mechanism improves length compliance at the cost of additional requests.
+
+Matching rates measure selected information coverage, not independently verified factual accuracy. The final LLM judge experiments were incomplete and are excluded from the final comparison. The system has not undergone systematic independent factual validation.
+
+## Evaluation Artefacts
+
+- [Dataset profile](evaluation/dataset_profile.csv)
+- [Final evaluation comparison](evaluation/final_comparison.csv)
+- [Full dataset comparison](evaluation/full_dataset_comparison.csv)
+- [Company-level rule-based results](evaluation/final_rule_based_scores.csv)
+- [Final visualisations](evaluation/final_figures/)
+
+## Historical Experiments
+
+The [initial V1–V2 experiment](evaluation/v1_v2_experiment/) informed the development of V3. The directories [judge attempt 1](evaluation/judge_attempt_1/), [judge attempt 2](evaluation/judge_attempt_2/) and [judge attempt 3](evaluation/judge_attempt_3/) retain incomplete LLM-based evaluation artefacts for transparency. These judge results are excluded from the final comparison. Earlier experimental scripts may require their original output paths to be restored; use the final evaluation commands above for reproducibility.
+
+## Case Study and AI Assistance
+
+See [CASE_STUDY.md](CASE_STUDY.md) for the methodology, design decisions, limitations, development time and future improvements.
+
+ChatGPT was used to assist with solution planning, code development, prompt engineering, debugging, evaluation, visualisation and documentation. OpenRouter provided access to the generation model and the model used in experimental LLM-based evaluation.
+
+## Acknowledgement
+
+This submission was developed using the OneCredit Data Scientist Take-Home Assessment template, version 2026.11. All supplied company records are synthetic.
